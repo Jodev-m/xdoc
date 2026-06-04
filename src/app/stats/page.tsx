@@ -39,16 +39,16 @@ export default function StatsPage() {
   }, []);
 
   return (
-    <div className="flex flex-col flex-1 p-6 max-w-2xl mx-auto w-full">
-      <div className="flex items-center gap-2 mb-8 text-sm text-neutral-500 dark:text-neutral-400">
-        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" title="Retour">←</button>
-        <span className="text-neutral-300 dark:text-neutral-600">|</span>
-        <Link href="/" className="hover:underline">Accueil</Link>
-        <span>/</span>
+    <div className="flex flex-col flex-1 p-4 sm:p-6 pb-20 sm:pb-6 max-w-2xl mx-auto w-full">
+      <div className="flex items-center gap-1 sm:gap-2 mb-6 sm:mb-8 text-sm text-neutral-500 dark:text-neutral-400">
+        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors p-1" title="Retour">←</button>
+        <span className="text-neutral-300 dark:text-neutral-600 hidden sm:inline">|</span>
+        <Link href="/" className="hover:underline hidden sm:inline">Accueil</Link>
+        <span className="hidden sm:inline">/</span>
         <span className="text-neutral-900 dark:text-neutral-100 font-medium">Statistiques</span>
       </div>
 
-      <h1 className="text-2xl font-bold mb-8">Statistiques</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Statistiques</h1>
 
       {!stats ? (
         <p className="text-neutral-500">Chargement...</p>

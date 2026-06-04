@@ -53,9 +53,9 @@ export default function HomePage() {
   const displayProjects = showArchived ? archived : projects;
 
   return (
-    <div className="flex flex-col flex-1 p-6 max-w-4xl mx-auto w-full">
-      <header className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">xdoc-mobile</h1>
+    <div className="flex flex-col flex-1 p-4 sm:p-6 pb-20 sm:pb-6 max-w-4xl mx-auto w-full">
+      <header className="flex items-center justify-between mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold">xdoc-mobile</h1>
         <nav className="hidden md:flex gap-4 text-sm">
           <Link href="/search" className="hover:underline">Recherche</Link>
           <Link href="/stats" className="hover:underline">Statistiques</Link>
@@ -65,7 +65,7 @@ export default function HomePage() {
         </nav>
       </header>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white dark:bg-neutral-900 border-t dark:border-neutral-700 px-2 py-2 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white dark:bg-neutral-900 border-t dark:border-neutral-700 px-1 py-1 safe-area-bottom">
         <NavItem href="/" label="Accueil" icon="🏠" />
         <NavItem href="/search" label="Recherche" icon="🔍" />
         <NavItem href="/stats" label="Stats" icon="📊" />
@@ -92,9 +92,9 @@ export default function HomePage() {
           {!showArchived && (
             <button
               onClick={() => setDialogOpen(true)}
-              className="px-4 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg text-sm hover:bg-neutral-800 hover:dark:bg-neutral-200"
+              className="px-4 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg text-sm hover:bg-neutral-800 hover:dark:bg-neutral-200 whitespace-nowrap"
             >
-              + Nouveau projet
+              + Nouveau
             </button>
           )}
         </div>
@@ -119,9 +119,9 @@ function NavItem({ href, label, icon }: { href: string; label: string; icon: str
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-0.5 text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+      className="flex flex-col items-center gap-0.5 text-[10px] text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors py-1 px-2 min-w-[64px]"
     >
-      <span className="text-base">{icon}</span>
+      <span className="text-lg">{icon}</span>
       <span>{label}</span>
     </Link>
   );

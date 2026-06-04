@@ -142,7 +142,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     e.stopPropagation();
                     handleDuplicateChecklist(cl.id);
                   }}
-                  className="text-xs px-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded"
+                  className="text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded"
                   title="Dupliquer la checklist"
                 >
                   📋
@@ -152,7 +152,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     e.stopPropagation();
                     setShowDeleteChecklist(cl.id);
                   }}
-                  className="text-xs px-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
+                  className="text-xs px-1.5 py-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
                   title="Supprimer la checklist"
                 >
                   🗑️
@@ -215,7 +215,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     </span>
                     <button
                       onClick={() => handleRemoveTask(task.id)}
-                      className="text-xs opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+                      className="text-xs md:opacity-0 md:group-hover:opacity-100 hover:text-red-500 transition-opacity px-1.5 py-1"
                     >
                       ✕
                     </button>

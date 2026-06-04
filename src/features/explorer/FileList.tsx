@@ -218,7 +218,7 @@ function Header({
   onImport?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
       <h2 className="text-lg font-semibold">
         {folderName ?? "Documents"}
       </h2>
@@ -226,14 +226,14 @@ function Header({
         {onImport && (
           <button
             onClick={onImport}
-            className="px-3 py-2 border dark:border-neutral-700 rounded-lg text-sm hover:bg-neutral-50 hover:dark:bg-neutral-800"
+            className="px-3 py-2 border dark:border-neutral-700 rounded-lg text-sm hover:bg-neutral-50 hover:dark:bg-neutral-800 whitespace-nowrap"
           >
             Importer
           </button>
         )}
         <button
           onClick={onCreateDocument}
-          className="px-4 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg text-sm hover:bg-neutral-800 hover:dark:bg-neutral-200"
+          className="px-4 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg text-sm hover:bg-neutral-800 hover:dark:bg-neutral-200 whitespace-nowrap"
         >
           + Nouveau document
         </button>

@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, StandardFonts, PDFFont } from 'pdf-lib';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel as DocxHeadingLevel } from 'docx';
 
 interface TiptapNode {
@@ -7,6 +7,14 @@ interface TiptapNode {
   text?: string;
   marks?: { type: string; attrs?: Record<string, string> }[];
   attrs?: Record<string, string | number | undefined>;
+}
+
+interface PDFBlock {
+  text: string;
+  fontSize: number;
+  fontName: 'Helvetica' | 'Helvetica-Bold' | 'Helvetica-Oblique';
+  indent: number;
+  spacingAfter: number;
 }
 
 function tiptapJsonToHtml(content: unknown): string {
@@ -61,7 +69,7 @@ function tiptapJsonToHtml(content: unknown): string {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/ +/g, ' ').trim();
 }
 
 function downloadBlob(blob: Blob, filename: string): void {
@@ -129,6 +137,118 @@ function tiptapJsonToMarkdown(content: unknown): string {
   }
 }
 
+function tiptapJsonToPDFBlocks(node: TiptapNode, indent = 0): PDFBlock[] {
+  const blocks: PDFBlock[] = [];
+
+  switch (node.type) {
+    case 'doc':
+      for (const child of node.content || []) {
+        blocks.push(...tiptapJsonToPDFBlocks(child, indent));
+      }
+      break;
+
+    case 'paragraph': {
+      const text = extractTextContent(node);
+      if (text) blocks.push({ text, fontSize: 11, fontName: 'Helvetica', indent, spacingAfter: 4 });
+      break;
+    }
+
+    case 'heading': {
+      const level = (node.attrs?.level as number) || 1;
+      const sizes: Record<number, number> = { 1: 20, 2: 16, 3: 14 };
+      const text = extractTextContent(node);
+      if (text) blocks.push({ text, fontSize: sizes[level] || 13, fontName: 'Helvetica-Bold', indent, spacingAfter: 6 });
+      break;
+    }
+
+    case 'bulletList':
+      for (const child of node.content || []) {
+        const itemBlocks = tiptapJsonToPDFBlocks(child, indent + 15);
+        if (itemBlocks.length > 0) {
+          itemBlocks[0].text = `•  ${itemBlocks[0].text}`;
+        }
+        blocks.push(...itemBlocks);
+      }
+      if (blocks.length > 0) blocks[blocks.length - 1].spacingAfter = 4;
+      break;
+
+    case 'orderedList':
+      for (let i = 0; i < (node.content || []).length; i++) {
+        const child = node.content![i];
+        const itemBlocks = tiptapJsonToPDFBlocks(child, indent + 15);
+        if (itemBlocks.length > 0) {
+          itemBlocks[0].text = `${i + 1}.  ${itemBlocks[0].text}`;
+        }
+        blocks.push(...itemBlocks);
+      }
+      if (blocks.length > 0) blocks[blocks.length - 1].spacingAfter = 4;
+      break;
+
+    case 'listItem':
+      for (const child of node.content || []) {
+        blocks.push(...tiptapJsonToPDFBlocks(child, indent));
+      }
+      break;
+
+    case 'horizontalRule':
+      blocks.push({ text: '────────────────────────────────', fontSize: 11, fontName: 'Helvetica', indent, spacingAfter: 6 });
+      break;
+
+    case 'blockquote': {
+      for (const child of node.content || []) {
+        const qBlocks = tiptapJsonToPDFBlocks(child, indent + 10);
+        for (const b of qBlocks) {
+          b.fontName = 'Helvetica-Oblique';
+        }
+        blocks.push(...qBlocks);
+      }
+      if (blocks.length > 0) blocks[blocks.length - 1].spacingAfter = 4;
+      break;
+    }
+
+    case 'codeBlock': {
+      for (const child of node.content || []) {
+        if (child.text || (child.type === 'text' && child.text)) {
+          blocks.push({ text: child.text || '', fontSize: 9, fontName: 'Helvetica', indent: indent + 5, spacingAfter: 1 });
+        }
+      }
+      blocks.push({ text: '', fontSize: 9, fontName: 'Helvetica', indent, spacingAfter: 4 });
+      break;
+    }
+  }
+
+  return blocks;
+}
+
+function extractTextContent(node: TiptapNode): string {
+  if (!node.content) return node.text || '';
+  return node.content.map((n) => {
+    if (n.type === 'text') return n.text || '';
+    return extractTextContent(n);
+  }).join('');
+}
+
+function wrapText(text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] {
+  if (maxWidth <= 0) return [text];
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const width = font.widthOfTextAtSize(testLine, fontSize);
+    if (width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+  return lines.length > 0 ? lines : [''];
+}
+
 export const ExportService = {
   async exportHTML(content: unknown, filename: string = 'document'): Promise<void> {
     const html = tiptapJsonToHtml(content);
@@ -143,24 +263,43 @@ export const ExportService = {
   },
 
   async exportPDF(content: unknown, filename: string = 'document'): Promise<void> {
-    const html = tiptapJsonToHtml(content);
-    const text = stripHtml(html);
+    const json = content as TiptapNode | null;
+    if (!json) return;
 
+    const blocks = tiptapJsonToPDFBlocks(json);
     const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    let page = pdfDoc.addPage([595, 842]);
-    const { width, height } = page.getSize();
-    const fontSize = 11;
+    const fonts = {
+      Helvetica: await pdfDoc.embedFont(StandardFonts.Helvetica),
+      'Helvetica-Bold': await pdfDoc.embedFont(StandardFonts.HelveticaBold),
+      'Helvetica-Oblique': await pdfDoc.embedFont(StandardFonts.HelveticaOblique),
+    };
     const margin = 50;
-    let y = height - margin;
+    const pageWidth = 595;
+    const pageHeight = 842;
+    const maxWidth = pageWidth - 2 * margin;
 
-    for (const line of text.split('\n')) {
-      if (y < margin) {
-        page = pdfDoc.addPage([595, 842]);
-        y = height - margin;
+    let page = pdfDoc.addPage([pageWidth, pageHeight]);
+    let y = pageHeight - margin;
+
+    for (const block of blocks) {
+      const font = fonts[block.fontName];
+      const lines = wrapText(block.text, font, block.fontSize, maxWidth - block.indent);
+
+      for (const line of lines) {
+        if (y < margin + block.fontSize) {
+          page = pdfDoc.addPage([pageWidth, pageHeight]);
+          y = pageHeight - margin;
+        }
+        page.drawText(line, {
+          x: margin + block.indent,
+          y,
+          size: block.fontSize,
+          font,
+        });
+        y -= block.fontSize * 1.4;
       }
-      page.drawText(line, { x: margin, y, size: fontSize, font, maxWidth: width - 2 * margin });
-      y -= fontSize * 1.5;
+
+      y -= block.spacingAfter;
     }
 
     const pdfBytes = await pdfDoc.save();

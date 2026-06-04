@@ -149,29 +149,31 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col p-6 max-w-4xl mx-auto w-full">
-      <div className="flex items-center gap-2 mb-2 text-sm text-neutral-500 dark:text-neutral-400">
-        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" title="Retour">←</button>
-        <span className="text-neutral-300 dark:text-neutral-600">|</span>
-        <Link href="/" className="hover:underline">Accueil</Link>
-        <span>/</span>
-        <span className="text-neutral-900 dark:text-neutral-100 font-medium">{project.name}</span>
+    <div className="flex flex-1 flex-col p-4 sm:p-6 pb-20 sm:pb-6 max-w-4xl mx-auto w-full">
+      <div className="flex items-center gap-1 sm:gap-2 mb-2 text-sm text-neutral-500 dark:text-neutral-400 flex-wrap">
+        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors p-1" title="Retour">←</button>
+        <span className="text-neutral-300 dark:text-neutral-600 hidden sm:inline">|</span>
+        <Link href="/" className="hover:underline hidden sm:inline">Accueil</Link>
+        <span className="hidden sm:inline">/</span>
+        <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[120px] sm:max-w-xs">{project.name}</span>
         {project.description && (
-          <span className="text-neutral-400 ml-2 truncate max-w-xs">— {project.description}</span>
+          <span className="text-neutral-400 ml-0 sm:ml-2 truncate max-w-[80px] sm:max-w-xs hidden sm:inline">— {project.description}</span>
         )}
-        <button
-          onClick={handleDuplicateProject}
-          className="ml-auto text-xs px-2 py-1 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
-          title="Dupliquer le projet"
-        >
-          📋
-        </button>
-        <button
-          onClick={openEditProject}
-          className="text-xs px-2 py-1 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
-        >
-          Modifier
-        </button>
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={handleDuplicateProject}
+            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
+            title="Dupliquer le projet"
+          >
+            📋
+          </button>
+          <button
+            onClick={openEditProject}
+            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
+          >
+            Modifier
+          </button>
+        </div>
       </div>
       {(project.startDate || project.endDate) && (
         <p className="text-xs text-neutral-400 mb-4">
@@ -181,8 +183,8 @@ export default function ProjectPage() {
         </p>
       )}
 
-      <div className="flex gap-6 flex-1">
-        <aside className="w-56 shrink-0">
+      <div className="flex flex-col md:flex-row gap-6 flex-1">
+        <aside className="w-full md:w-56 shrink-0">
           <FolderTree
             folders={folders}
             selectedFolderId={selectedFolder}
@@ -194,7 +196,7 @@ export default function ProjectPage() {
           />
         </aside>
 
-        <main className="flex-1">
+        <main className="flex-1 min-w-0">
           <FileList
             documents={filteredDocs}
             projectId={project.id}

@@ -85,7 +85,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                       e.preventDefault();
                       onArchive(project.id, true);
                     }}
-                    className="opacity-0 group-hover:opacity-100 text-xs px-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
+                    className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
                     title="Archiver le projet"
                   >
                     📦
@@ -97,7 +97,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                       e.preventDefault();
                       onArchive(project.id, false);
                     }}
-                    className="opacity-0 group-hover:opacity-100 text-xs px-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
+                    className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
                     title="Restaurer le projet"
                   >
                     ↩️
@@ -108,7 +108,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                     e.preventDefault();
                     setConfirmDeleteId(project.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 text-xs px-1 hover:bg-red-100 rounded transition-opacity"
+                  className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-red-100 rounded transition-opacity"
                   title="Supprimer le projet"
                 >
                   🗑️

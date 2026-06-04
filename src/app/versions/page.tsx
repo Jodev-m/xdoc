@@ -34,16 +34,16 @@ export default function VersionsPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col p-6 max-w-4xl mx-auto w-full">
-      <div className="flex items-center gap-2 mb-6 text-sm text-neutral-500">
-        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" title="Retour">←</button>
-        <span className="text-neutral-300">|</span>
-        <Link href="/" className="hover:underline">Accueil</Link>
-        <span>/</span>
+    <div className="flex flex-1 flex-col p-4 sm:p-6 pb-20 sm:pb-6 max-w-4xl mx-auto w-full">
+      <div className="flex items-center gap-1 sm:gap-2 mb-4 sm:mb-6 text-sm text-neutral-500">
+        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors p-1" title="Retour">←</button>
+        <span className="text-neutral-300 hidden sm:inline">|</span>
+        <Link href="/" className="hover:underline hidden sm:inline">Accueil</Link>
+        <span className="hidden sm:inline">/</span>
         <span className="text-neutral-900 font-medium">Historique</span>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">Historique des versions</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Historique des versions</h1>
 
       {loading ? (
         <p className="text-neutral-500">Chargement...</p>

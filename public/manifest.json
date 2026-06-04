@@ -1,12 +1,15 @@
 {
+  "id": "xdoc-mobile",
   "name": "xdoc-mobile",
   "short_name": "xdoc",
   "description": "Application de documents hors ligne",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#171717",
   "orientation": "portrait",
+  "categories": ["productivity", "documents"],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -17,7 +20,8 @@
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

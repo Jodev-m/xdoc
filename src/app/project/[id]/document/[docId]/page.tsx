@@ -112,29 +112,29 @@ export default function DocumentPage() {
   }
 
   return (
-    <div className={`flex flex-1 flex-col ${focusMode ? "p-0 max-w-none" : "p-6 max-w-5xl"} mx-auto w-full`}>
+    <div className={`flex flex-1 flex-col ${focusMode ? "p-0 max-w-none" : "p-4 sm:p-6 pb-20 sm:pb-6 max-w-5xl"} mx-auto w-full`}>
       {!focusMode && (
         <>
-          <div className="flex items-center gap-2 mb-4 text-sm text-neutral-500 dark:text-neutral-400">
-            <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" title="Retour">←</button>
-            <span className="text-neutral-300 dark:text-neutral-600">|</span>
-            <Link href="/" className="hover:underline">Accueil</Link>
-            <span>/</span>
-            <Link href={`/project/${projectId}`} className="hover:underline">
+          <div className="flex items-center gap-1 sm:gap-2 mb-4 text-sm text-neutral-500 dark:text-neutral-400 overflow-hidden">
+            <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors shrink-0 p-1" title="Retour">←</button>
+            <span className="text-neutral-300 dark:text-neutral-600 hidden sm:inline shrink-0">|</span>
+            <Link href="/" className="hover:underline hidden sm:inline shrink-0">Accueil</Link>
+            <span className="hidden sm:inline shrink-0">/</span>
+            <Link href={`/project/${projectId}`} className="hover:underline shrink-0">
               Projet
             </Link>
-            <span>/</span>
-            <span className="text-neutral-900 dark:text-neutral-100 font-medium">{doc.title}</span>
+            <span className="shrink-0">/</span>
+            <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate min-w-0">{doc.title}</span>
           </div>
 
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
             <input
               type="text"
               value={doc.title}
               onChange={(e) => setDoc({ ...doc, title: e.target.value })}
-              className="text-2xl font-bold bg-transparent border-none outline-none flex-1"
+              className="text-xl sm:text-2xl font-bold bg-transparent border-none outline-none flex-1 min-w-0"
             />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-neutral-400">
                 v{doc.version}
               </span>
@@ -163,7 +163,7 @@ export default function DocumentPage() {
             </div>
           </div>
 
-          <p className="text-xs text-neutral-400 mb-4">
+          <p className="text-xs text-neutral-400 mb-3 sm:mb-4">
             {lastSaved
               ? `Dernière sauvegarde : ${new Date(lastSaved).toLocaleTimeString("fr-FR")}`
               : `Dernière modification : ${new Date(doc.updatedAt).toLocaleString("fr-FR")}`}
@@ -189,8 +189,8 @@ export default function DocumentPage() {
         </div>
       )}
 
-      <div className="flex gap-6 flex-1">
-        <div className="flex-1 flex flex-col">
+      <div className="flex flex-col md:flex-row gap-6 flex-1">
+        <div className="flex-1 flex flex-col min-w-0">
           <div className="flex items-center justify-end gap-1 px-1">
             <button
               onClick={() => setFocusMode(!focusMode)}
@@ -207,7 +207,7 @@ export default function DocumentPage() {
           />
         </div>
         {showHistory && !focusMode && (
-          <aside className="w-72 shrink-0">
+          <aside className="w-full md:w-72 shrink-0">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 mb-3">
               Versions
             </h3>

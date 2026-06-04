@@ -77,16 +77,16 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 p-6 max-w-2xl mx-auto w-full">
-      <div className="flex items-center gap-2 mb-8 text-sm text-neutral-500">
-        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors" title="Retour">←</button>
-        <span className="text-neutral-300">|</span>
-        <Link href="/" className="hover:underline">Accueil</Link>
-        <span>/</span>
+    <div className="flex flex-col flex-1 p-4 sm:p-6 pb-20 sm:pb-6 max-w-2xl mx-auto w-full">
+      <div className="flex items-center gap-1 sm:gap-2 mb-6 sm:mb-8 text-sm text-neutral-500">
+        <button onClick={() => router.back()} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors p-1" title="Retour">←</button>
+        <span className="text-neutral-300 hidden sm:inline">|</span>
+        <Link href="/" className="hover:underline hidden sm:inline">Accueil</Link>
+        <span className="hidden sm:inline">/</span>
         <span className="text-neutral-900 dark:text-neutral-100 font-medium">Paramètres</span>
       </div>
 
-      <h1 className="text-2xl font-bold mb-8">Paramètres</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Paramètres</h1>
 
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Éditeur</h2>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
 
 function SettingRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
       <span className="text-sm text-neutral-600 dark:text-neutral-400">{label}</span>
       {children}
     </div>

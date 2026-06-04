@@ -36,7 +36,7 @@ export function EditorToolbar({ editor, onFindToggle }: EditorToolbarProps) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-white dark:bg-neutral-900 dark:border-neutral-700">
+      <div className="flex items-center gap-1 p-2 border-b bg-white dark:bg-neutral-900 dark:border-neutral-700 overflow-x-auto scrollbar-none">
         <ToolbarButton
           label="Gras"
           shortcut="Ctrl+B"

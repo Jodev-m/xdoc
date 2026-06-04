@@ -83,13 +83,13 @@ function FolderNode({
         ) : (
           <span className="flex-1 truncate">{folder.name}</span>
         )}
-        <div className="hidden group-hover:flex items-center gap-0.5">
+        <div className="flex md:hidden md:group-hover:flex items-center gap-0.5">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowSubfolderPrompt(true);
             }}
-            className="text-xs px-1 hover:bg-neutral-200 rounded"
+            className="text-xs px-1.5 py-1 hover:bg-neutral-200 rounded"
             title="Nouveau sous-dossier"
           >
             +
@@ -100,7 +100,7 @@ function FolderNode({
               setNewName(folder.name);
               setRenaming(true);
             }}
-            className="text-xs px-1 hover:bg-neutral-200 rounded"
+            className="text-xs px-1.5 py-1 hover:bg-neutral-200 rounded"
             title="Renommer"
           >
             ✏️
@@ -110,7 +110,7 @@ function FolderNode({
               e.stopPropagation();
               setConfirmDelete(folder);
             }}
-            className="text-xs px-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
+            className="text-xs px-1.5 py-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
             title="Supprimer"
           >
             🗑️

@@ -71,7 +71,7 @@ export function EditorContent({ content, onChange }: EditorContentProps) {
     editorProps: {
       attributes: {
         class:
-          "max-w-none focus:outline-none min-h-[400px] px-4 py-4",
+          "max-w-none focus:outline-none min-h-[300px] sm:min-h-[400px] px-3 sm:px-4 py-3 sm:py-4",
         style: `font-size: ${settings.fontSize}px; line-height: ${settings.lineHeight};`,
       },
       handleKeyDown: (_view: unknown, event: KeyboardEvent) => {
