@@ -34,6 +34,9 @@ export default function ProjectPage() {
   const [editEndDate, setEditEndDate] = useState("");
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -117,15 +120,39 @@ export default function ProjectPage() {
     toast.showToast("Brief client créé", "success");
   };
 
-  const handleExportPDF = async () => {
+  const openExportDialog = () => {
+    setSelectedDocIds(new Set(documents.filter((d) => !selectedFolder || d.folderId === selectedFolder).map((d) => d.id)));
+    setShowExportDialog(true);
+  };
+
+  const toggleDocSelection = (id: string) => {
+    setSelectedDocIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAllSelection = () => {
+    const visible = documents.filter((d) => !selectedFolder || d.folderId === selectedFolder);
+    if (selectedDocIds.size === visible.length) {
+      setSelectedDocIds(new Set());
+    } else {
+      setSelectedDocIds(new Set(visible.map((d) => d.id)));
+    }
+  };
+
+  const handleExportSelectedPDF = async () => {
     if (!project) return;
-    const allDocs = await DocumentService.getProjectDocuments(project.id);
-    if (allDocs.length === 0) {
-      toast.showToast("Aucun document à exporter", "error");
+    const docs = documents.filter((d) => selectedDocIds.has(d.id));
+    if (docs.length === 0) {
+      toast.showToast("Sélectionne au moins un document", "error");
       return;
     }
+    setExporting(true);
     const blob = await ExportService.exportProjectPDF(
-      allDocs.map((d) => ({ title: d.title, content: d.content })),
+      docs.map((d) => ({ title: d.title, content: d.content })),
       project.name
     );
     if (blob) {
@@ -135,20 +162,23 @@ export default function ProjectPage() {
       a.download = `${project.name}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.showToast("PDF exporté", "success");
+      toast.showToast(`${docs.length} document${docs.length > 1 ? "s" : ""} exporté${docs.length > 1 ? "s" : ""} en PDF`, "success");
     }
+    setExporting(false);
+    setShowExportDialog(false);
   };
 
-  const handleExportZIP = async () => {
+  const handleExportSelectedZIP = async () => {
     if (!project) return;
-    const allDocs = await DocumentService.getProjectDocuments(project.id);
-    const images = await ProjectImageService.getImages(project.id);
-    if (allDocs.length === 0 && images.length === 0) {
-      toast.showToast("Aucun contenu à exporter", "error");
+    const docs = documents.filter((d) => selectedDocIds.has(d.id));
+    if (docs.length === 0) {
+      toast.showToast("Sélectionne au moins un document", "error");
       return;
     }
+    setExporting(true);
+    const images = await ProjectImageService.getImages(project.id);
     const blob = await ExportService.exportProjectZIP(
-      allDocs.map((d) => ({ title: d.title, content: d.content })),
+      docs.map((d) => ({ title: d.title, content: d.content })),
       images.map((i) => ({ name: i.name, data: i.data })),
       project.name
     );
@@ -159,8 +189,10 @@ export default function ProjectPage() {
       a.download = `${project.name}.zip`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.showToast("Archive ZIP exportée", "success");
+      toast.showToast(`Archive ZIP créée (${docs.length} document${docs.length > 1 ? "s" : ""})`, "success");
     }
+    setExporting(false);
+    setShowExportDialog(false);
   };
 
   const handleShareZIP = async () => {
@@ -279,20 +311,12 @@ export default function ProjectPage() {
             Brief
           </button>
           <button
-            onClick={handleExportPDF}
+            onClick={openExportDialog}
             className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
-            title="Exporter tous les documents en PDF"
+            title="Exporter des documents"
           >
             <Download size={14} />
-            PDF
-          </button>
-          <button
-            onClick={handleExportZIP}
-            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
-            title="Exporter le projet en ZIP"
-          >
-            <FileArchive size={14} />
-            ZIP
+            Exporter
           </button>
           <div className="relative">
             <button
@@ -449,6 +473,68 @@ export default function ProjectPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showExportDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b dark:border-neutral-700">
+              <h2 className="text-lg font-semibold">Exporter des documents</h2>
+              <button onClick={() => setShowExportDialog(false)} className="p-1 text-neutral-500 hover:text-neutral-700">✕</button>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 border-b dark:border-neutral-700 text-xs text-neutral-500">
+              <button onClick={toggleAllSelection} className="hover:underline">
+                {selectedDocIds.size === documents.filter((d) => !selectedFolder || d.folderId === selectedFolder).length
+                  ? "Tout désélectionner"
+                  : "Tout sélectionner"}
+              </button>
+              <span className="ml-auto">{selectedDocIds.size} sélectionné{selectedDocIds.size > 1 ? "s" : ""}</span>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {documents.filter((d) => !selectedFolder || d.folderId === selectedFolder).map((doc) => (
+                <label
+                  key={doc.id}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedDocIds.has(doc.id)}
+                    onChange={() => toggleDocSelection(doc.id)}
+                    className="accent-neutral-900 dark:accent-neutral-100"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{doc.title}</p>
+                    <p className="text-xs text-neutral-500">{new Date(doc.updatedAt).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="flex items-center justify-end gap-2 p-4 border-t dark:border-neutral-700">
+              <button
+                onClick={() => setShowExportDialog(false)}
+                className="px-4 py-2 text-sm rounded-lg border dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleExportSelectedPDF}
+                disabled={exporting || selectedDocIds.size === 0}
+                className="px-4 py-2 text-sm rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:opacity-50 flex items-center gap-1"
+              >
+                <Download size={14} />
+                {exporting ? "Export..." : "PDF"}
+              </button>
+              <button
+                onClick={handleExportSelectedZIP}
+                disabled={exporting || selectedDocIds.size === 0}
+                className="px-4 py-2 text-sm rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 disabled:opacity-50 flex items-center gap-1"
+              >
+                <FileArchive size={14} />
+                {exporting ? "Export..." : "ZIP"}
+              </button>
+            </div>
           </div>
         </div>
       )}
