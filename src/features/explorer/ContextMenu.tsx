@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 interface ContextMenuAction {
   label: string;
-  icon?: string;
+  icon?: ReactNode;
   onClick: () => void;
   danger?: boolean;
 }
@@ -53,7 +53,7 @@ export function ContextMenu({ x, y, actions, onClose }: ContextMenuProps) {
             action.danger ? "text-red-600" : ""
           }`}
         >
-          {action.icon && <span>{action.icon}</span>}
+          {action.icon}
           {action.label}
         </button>
       ))}

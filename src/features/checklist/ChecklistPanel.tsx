@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChecklistService } from "@/services";
 import type { Checklist, ChecklistTask } from "@/types";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ClipboardList, Trash2, GripVertical, X } from "lucide-react";
 
 interface ChecklistPanelProps {
   projectId: string;
@@ -123,7 +124,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
               <div className="min-w-0 flex-1">
                 <span className="text-sm font-medium block truncate">{cl.title}</span>
                 {total > 0 && (
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
                     {done}/{total} — {percent}%
                   </span>
                 )}
@@ -142,20 +143,20 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     e.stopPropagation();
                     handleDuplicateChecklist(cl.id);
                   }}
-                  className="text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded"
+                  className="text-xs p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded"
                   title="Dupliquer la checklist"
                 >
-                  📋
+                  <ClipboardList size={14} />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowDeleteChecklist(cl.id);
                   }}
-                  className="text-xs px-1.5 py-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
+                  className="text-xs p-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
                   title="Supprimer la checklist"
                 >
-                  🗑️
+                  <Trash2 size={14} />
                 </button>
               </div>
             </button>
@@ -163,7 +164,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
             {!collapsed[cl.id] && (
               <div className="border-t px-3 py-2 space-y-1">
                 {clTasks.length === 0 && (
-                  <p className="text-xs text-neutral-400 py-1">Aucune tâche</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 py-1">Aucune tâche</p>
                 )}
                 {clTasks
                   .sort((a, b) => a.position - b.position)
@@ -199,7 +200,7 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     }}
                     className="flex items-center gap-2 group"
                   >
-                    <span className="text-xs text-neutral-300 cursor-grab active:cursor-grabbing">⠿</span>
+                    <GripVertical size={14} className="text-neutral-300 cursor-grab active:cursor-grabbing shrink-0" />
                     <input
                       type="checkbox"
                       checked={task.completed}
@@ -208,16 +209,16 @@ export function ChecklistPanel({ projectId, onProgressChange }: ChecklistPanelPr
                     />
                     <span
                       className={`flex-1 text-sm ${
-                        task.completed ? "line-through text-neutral-400" : ""
+                        task.completed ? "line-through text-neutral-500 dark:text-neutral-400" : ""
                       }`}
                     >
                       {task.text}
                     </span>
                     <button
                       onClick={() => handleRemoveTask(task.id)}
-                      className="text-xs md:opacity-0 md:group-hover:opacity-100 hover:text-red-500 transition-opacity px-1.5 py-1"
+                      className="text-xs md:opacity-0 md:group-hover:opacity-100 hover:text-red-500 transition-opacity p-1"
                     >
-                      ✕
+                      <X size={14} />
                     </button>
                   </div>
                 ))}

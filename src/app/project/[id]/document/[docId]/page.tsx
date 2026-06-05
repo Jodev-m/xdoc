@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { DocumentService, SearchService } from "@/services";
 import type { XDoc } from "@/types";
 import { EditorContent } from "@/features/editor";
+import { useToast } from "@/components/Toast";
 import { VersionHistory } from "@/features/versions";
 import { ExportMenu } from "@/features/export";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useVersionSnapshot } from "@/hooks/useVersionSnapshot";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function DocumentPage() {
+  const toast = useToast();
   const params = useParams();
   const router = useRouter();
   const docId = params.docId as string;
@@ -26,6 +29,7 @@ export default function DocumentPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editorKey, setEditorKey] = useState(0);
   const [focusMode, setFocusMode] = useState(false);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     if (!docId) return;
@@ -40,6 +44,7 @@ export default function DocumentPage() {
     if (doc) {
       await SearchService.indexDocument({ ...doc, content });
     }
+    dirtyRef.current = false;
     setLastSaved(Date.now());
   }, [doc]);
 
@@ -54,12 +59,23 @@ export default function DocumentPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [docId, doc?.content, doSave]);
 
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   useAutosave(docId, doc?.content, doSave);
   useVersionSnapshot(docId, doc?.content);
 
   const handleContentChange = useCallback(
     (json: unknown) => {
       setDoc((prev) => (prev ? { ...prev, content: json } : prev));
+      dirtyRef.current = true;
     },
     []
   );
@@ -69,6 +85,7 @@ export default function DocumentPage() {
     setSaving(true);
     await doSave(doc.id, doc.content);
     setSaving(false);
+    toast.showToast("Document sauvegardé", "success");
   };
 
   const handleDelete = () => {
@@ -78,6 +95,7 @@ export default function DocumentPage() {
 
   const doDelete = async () => {
     if (!doc) return;
+    toast.showToast(`Document "${doc.title}" supprimé`, "info");
     await DocumentService.deleteDocument(doc.id);
     router.push(`/project/${projectId}`);
   };
@@ -92,8 +110,10 @@ export default function DocumentPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-neutral-500">Chargement...</p>
+      <div className="flex flex-1 flex-col p-4 sm:p-6 pb-20 max-w-5xl mx-auto w-full gap-4">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -135,7 +155,7 @@ export default function DocumentPage() {
               className="text-xl sm:text-2xl font-bold bg-transparent border-none outline-none flex-1 min-w-0"
             />
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-neutral-400">
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
                 v{doc.version}
               </span>
               <ExportMenu content={doc.content} filename={doc.title} />
@@ -163,7 +183,7 @@ export default function DocumentPage() {
             </div>
           </div>
 
-          <p className="text-xs text-neutral-400 mb-3 sm:mb-4">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 sm:mb-4">
             {lastSaved
               ? `Dernière sauvegarde : ${new Date(lastSaved).toLocaleTimeString("fr-FR")}`
               : `Dernière modification : ${new Date(doc.updatedAt).toLocaleString("fr-FR")}`}
@@ -194,7 +214,7 @@ export default function DocumentPage() {
           <div className="flex items-center justify-end gap-1 px-1">
             <button
               onClick={() => setFocusMode(!focusMode)}
-              className="text-xs px-2 py-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+              className="text-xs px-2 py-1 text-neutral-500 dark:text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
               title={focusMode ? "Quitter le mode focus" : "Mode focus"}
             >
               {focusMode ? "⊞" : "⛶"}

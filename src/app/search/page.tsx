@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SearchService } from "@/services";
 import type { SearchDoc } from "@/services/SearchService";
+import { MobileNav } from "@/components/MobileNav";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function SearchPage() {
       />
 
       {!ready ? (
-        <p className="text-neutral-400">Indexation en cours...</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Indexation en cours...</p>
       ) : results.length > 0 ? (
         <ul className="space-y-2">
           {results.map((r) => (
@@ -63,7 +64,7 @@ export default function SearchPage() {
               >
                 <span className="font-medium">{r.title}</span>
                 {r.projectName && (
-                  <span className="text-xs text-neutral-400 ml-2">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-2">
                     — {r.projectName}
                   </span>
                 )}
@@ -75,12 +76,13 @@ export default function SearchPage() {
           ))}
         </ul>
       ) : query && (
-        <p className="text-neutral-400">Aucun résultat pour &ldquo;{query}&rdquo;.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Aucun résultat pour &ldquo;{query}&rdquo;.</p>
       )}
 
       {ready && !query && (
-        <p className="text-neutral-400">Tapez votre recherche ci-dessus.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Tapez votre recherche ci-dessus.</p>
       )}
+      <MobileNav />
     </div>
   );
 }

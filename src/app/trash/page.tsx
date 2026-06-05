@@ -7,6 +7,8 @@ import { ProjectService, TrashService } from "@/services";
 import type { Project } from "@/types";
 import type { TrashEntry } from "@/db";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { MobileNav } from "@/components/MobileNav";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function TrashPage() {
   const router = useRouter();
@@ -87,9 +89,12 @@ export default function TrashPage() {
       </div>
 
       {loading ? (
-        <p className="text-neutral-500">Chargement...</p>
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
       ) : total === 0 ? (
-        <p className="text-neutral-400">La corbeille est vide.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">La corbeille est vide.</p>
       ) : (
         <>
           {deletedProjects.length > 0 && (
@@ -105,7 +110,7 @@ export default function TrashPage() {
                   >
                     <div>
                       <span className="font-medium">{project.name}</span>
-                      <p className="text-xs text-neutral-400 mt-0.5">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                         Supprimé le {project.deletedAt ? new Date(project.deletedAt).toLocaleString("fr-FR") : "—"}
                       </p>
                     </div>
@@ -133,7 +138,7 @@ export default function TrashPage() {
             Documents supprimés
           </h2>
           {entries.length === 0 ? (
-            <p className="text-sm text-neutral-400 mb-6">Aucun document supprimé.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">Aucun document supprimé.</p>
           ) : (
             <ul className="space-y-2 mb-6">
               {entries.map((entry) => (
@@ -143,7 +148,7 @@ export default function TrashPage() {
                 >
                   <div>
                     <span className="font-medium">{entry.title}</span>
-                    <p className="text-xs text-neutral-400 mt-0.5">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                       Supprimé le {new Date(entry.deletedAt).toLocaleString("fr-FR")}
                     </p>
                   </div>
@@ -201,6 +206,7 @@ export default function TrashPage() {
         }}
         onClose={() => setConfirmEmpty(false)}
       />
+      <MobileNav />
     </div>
   );
 }

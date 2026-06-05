@@ -5,8 +5,12 @@ import { ProjectService, ChecklistService } from "@/services";
 import type { Project } from "@/types";
 import Link from "next/link";
 import { ProjectList, CreateProjectDialog } from "@/features/projects";
+import { useToast } from "@/components/Toast";
+import { MobileNav } from "@/components/MobileNav";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function HomePage() {
+  const toast = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [archived, setArchived] = useState<Project[]>([]);
   const [progress, setProgress] = useState<Record<string, { done: number; total: number }>>({});
@@ -37,17 +41,22 @@ export default function HomePage() {
   const handleCreate = async (name: string, description?: string, startDate?: number, endDate?: number) => {
     const project = await ProjectService.createProject(name, description, startDate, endDate);
     setProjects((prev) => [project, ...prev]);
+    toast.showToast(`Projet "${name}" créé`, "success");
   };
 
   const handleDelete = async (id: string) => {
+    const p = projects.find((p) => p.id === id);
     await ProjectService.deleteProject(id);
     setProjects((prev) => prev.filter((p) => p.id !== id));
     setArchived((prev) => prev.filter((p) => p.id !== id));
+    toast.showToast(`Projet "${p?.name}" supprimé`, "info");
   };
 
-  const handleArchive = async (id: string, archived: boolean) => {
-    await ProjectService.archiveProject(id, archived);
+  const handleArchive = async (id: string, toArchive: boolean) => {
+    const p = [...projects, ...archived].find((p) => p.id === id);
+    await ProjectService.archiveProject(id, toArchive);
     await loadProjects();
+    toast.showToast(`Projet "${p?.name}" ${toArchive ? "archivé" : "restauré"}`, "info");
   };
 
   const displayProjects = showArchived ? archived : projects;
@@ -65,26 +74,20 @@ export default function HomePage() {
         </nav>
       </header>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white dark:bg-neutral-900 border-t dark:border-neutral-700 px-1 py-1 safe-area-bottom">
-        <NavItem href="/" label="Accueil" icon="🏠" />
-        <NavItem href="/search" label="Recherche" icon="🔍" />
-        <NavItem href="/stats" label="Stats" icon="📊" />
-        <NavItem href="/versions" label="Historique" icon="🕐" />
-        <NavItem href="/settings" label="Paramètres" icon="⚙️" />
-      </nav>
+      <MobileNav />
 
       <section>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowArchived(false)}
-              className={`text-sm font-semibold ${showArchived ? "text-neutral-400" : "text-neutral-900 dark:text-neutral-100"}`}
+              className={`text-sm font-semibold ${showArchived ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-900 dark:text-neutral-100"}`}
             >
               Projets
             </button>
             <button
               onClick={() => setShowArchived(true)}
-              className={`text-sm font-semibold ${showArchived ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-400"}`}
+              className={`text-sm font-semibold ${showArchived ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}`}
             >
               Archivés {archived.length > 0 && `(${archived.length})`}
             </button>
@@ -100,7 +103,30 @@ export default function HomePage() {
         </div>
 
         {loading ? (
-          <p className="text-neutral-500">Chargement...</p>
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-3/4" />
+          </div>
+        ) : !showArchived && displayProjects.length === 0 && projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <svg className="w-24 h-24 text-neutral-300 dark:text-neutral-600 mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <line x1="9" y1="15" x2="15" y2="15" />
+            </svg>
+            <h2 className="text-xl font-bold mb-2">Bienvenue sur xdoc-mobile</h2>
+            <p className="text-neutral-500 mb-8 max-w-sm">
+              Crée ton premier projet pour commencer à rédiger, organiser et suivre tes documents.
+            </p>
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-xl text-sm font-medium hover:bg-neutral-800 hover:dark:bg-neutral-200"
+            >
+              Créer mon premier projet
+            </button>
+          </div>
         ) : (
           <ProjectList projects={displayProjects} progress={progress} onUpdate={setProjects} onDelete={handleDelete} onArchive={handleArchive} showArchiveBtn={!showArchived} />
         )}
@@ -112,17 +138,5 @@ export default function HomePage() {
         onSubmit={handleCreate}
       />
     </div>
-  );
-}
-
-function NavItem({ href, label, icon }: { href: string; label: string; icon: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center gap-0.5 text-[10px] text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors py-1 px-2 min-w-[64px]"
-    >
-      <span className="text-lg">{icon}</span>
-      <span>{label}</span>
-    </Link>
   );
 }

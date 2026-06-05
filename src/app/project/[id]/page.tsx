@@ -6,11 +6,14 @@ import Link from "next/link";
 import { ProjectService, FolderService, DocumentService } from "@/services";
 import type { Project, Folder, XDoc } from "@/types";
 import { FolderTree, FileList } from "@/features/explorer";
+import { useToast } from "@/components/Toast";
+import { Skeleton } from "@/components/Skeleton";
 import { ChecklistPanel } from "@/features/checklist";
 import { PromptDialog } from "@/components/PromptDialog";
 import { ImportDialog } from "@/components/ImportDialog";
 
 export default function ProjectPage() {
+  const toast = useToast();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -50,6 +53,7 @@ export default function ProjectPage() {
     if (!project) return;
     const doc = await DocumentService.createDocument(project.id, title, selectedFolder);
     setDocuments((prev) => [...prev, doc]);
+    toast.showToast(`Document "${title}" créé`, "success");
   };
 
   const handleRenameDocument = async (docId: string, title: string) => {
@@ -57,11 +61,14 @@ export default function ProjectPage() {
     setDocuments((prev) =>
       prev.map((d) => (d.id === docId ? { ...d, title } : d))
     );
+    toast.showToast(`Document renommé en "${title}"`, "success");
   };
 
   const handleDeleteDocument = async (docId: string) => {
+    const doc = documents.find((d) => d.id === docId);
     await DocumentService.deleteDocument(docId);
     setDocuments((prev) => prev.filter((d) => d.id !== docId));
+    toast.showToast(`Document "${doc?.title}" supprimé`, "info");
   };
 
   const handleRenameFolder = async (folderId: string, name: string) => {
@@ -132,7 +139,10 @@ export default function ProjectPage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-neutral-500">Chargement...</p>
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     );
   }
@@ -157,7 +167,7 @@ export default function ProjectPage() {
         <span className="hidden sm:inline">/</span>
         <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[120px] sm:max-w-xs">{project.name}</span>
         {project.description && (
-          <span className="text-neutral-400 ml-0 sm:ml-2 truncate max-w-[80px] sm:max-w-xs hidden sm:inline">— {project.description}</span>
+          <span className="text-neutral-500 dark:text-neutral-400 ml-0 sm:ml-2 truncate max-w-[80px] sm:max-w-xs hidden sm:inline">— {project.description}</span>
         )}
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <button
@@ -176,7 +186,7 @@ export default function ProjectPage() {
         </div>
       </div>
       {(project.startDate || project.endDate) && (
-        <p className="text-xs text-neutral-400 mb-4">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-4">
           {project.startDate && new Date(project.startDate).toLocaleDateString("fr-FR")}
           {project.startDate && project.endDate && " — "}
           {project.endDate && new Date(project.endDate).toLocaleDateString("fr-FR")}

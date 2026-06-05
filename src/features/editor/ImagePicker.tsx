@@ -1,5 +1,7 @@
 "use client";
 
+import { Camera } from "lucide-react";
+
 interface ImagePickerProps {
   onImagePicked: (base64: string) => void;
   onClose: () => void;
@@ -29,7 +31,7 @@ export function ImagePicker({ onImagePicked, onClose }: ImagePickerProps) {
       <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
         <h2 className="text-lg font-semibold mb-4">Ajouter une image</h2>
         <label className="flex flex-col items-center gap-3 p-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-neutral-50">
-          <span className="text-4xl">📷</span>
+          <Camera size={40} className="text-neutral-500 dark:text-neutral-400" />
           <span className="text-sm text-neutral-600">
             Choisir une photo (JPEG, max 1600px)
           </span>

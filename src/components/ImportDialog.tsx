@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { DocumentService } from "@/services";
+import * as mammoth from "mammoth";
 
 interface ImportDialogProps {
   open: boolean;
@@ -25,11 +26,11 @@ export function ImportDialog({ open, projectId, folderId, onClose, onImported }:
     setError("");
 
     try {
-      const text = await file.text();
       const title = file.name.replace(/\.[^/.]+$/, "");
       let content: unknown;
 
       if (file.name.endsWith(".txt")) {
+        const text = await file.text();
         content = {
           type: "doc",
           content: text.split("\n").filter((l) => l.trim()).map((line) => ({
@@ -38,9 +39,13 @@ export function ImportDialog({ open, projectId, folderId, onClose, onImported }:
           })),
         };
       } else if (file.name.endsWith(".html")) {
+        const text = await file.text();
         content = text;
+      } else if (file.name.endsWith(".docx")) {
+        const result = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+        content = result.value;
       } else {
-        setError("Format non supporté. Utilisez .txt ou .html.");
+        setError("Format non supporté. Utilisez .txt, .html ou .docx.");
         setLoading(false);
         return;
       }
@@ -59,12 +64,12 @@ export function ImportDialog({ open, projectId, folderId, onClose, onImported }:
       <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
         <h2 className="text-lg font-semibold mb-4">Importer un fichier</h2>
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-          Formats supportés : .txt, .html
+          Formats supportés : .txt, .html, .docx
         </p>
         <input
           ref={inputRef}
           type="file"
-          accept=".txt,.html"
+          accept=".txt,.html,.docx"
           onChange={handleFile}
           className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-neutral-900 file:text-white hover:file:bg-neutral-800 dark:file:bg-neutral-100 dark:file:text-neutral-900 dark:hover:file:bg-neutral-200 mb-4"
         />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Folder } from "@/types";
 import { PromptDialog } from "@/components/PromptDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Folder as FolderIcon, Plus, Pencil, Trash2, FileText } from "lucide-react";
 
 interface FolderTreeProps {
   folders: Folder[];
@@ -43,7 +44,7 @@ function FolderNode({
   return (
     <li>
       <div
-        className={`group flex items-center gap-1 px-2 py-1 rounded text-sm cursor-pointer hover:bg-neutral-100 hover:dark:bg-neutral-800 ${
+        className={`group flex items-center gap-1 px-2 py-1.5 rounded text-sm cursor-pointer hover:bg-neutral-100 hover:dark:bg-neutral-800 ${
           selectedFolderId === folder.id ? "bg-neutral-100 dark:bg-neutral-800 font-medium" : ""
         }`}
         style={{ paddingLeft: `${8 + depth * 16}px` }}
@@ -52,7 +53,7 @@ function FolderNode({
           e.preventDefault();
         }}
       >
-        <span className="text-xs mr-1">📁</span>
+        <FolderIcon size={14} className="mr-1 shrink-0 text-neutral-500" />
         {renaming ? (
           <input
             type="text"
@@ -89,10 +90,10 @@ function FolderNode({
               e.stopPropagation();
               setShowSubfolderPrompt(true);
             }}
-            className="text-xs px-1.5 py-1 hover:bg-neutral-200 rounded"
+            className="text-xs p-1 hover:bg-neutral-200 rounded"
             title="Nouveau sous-dossier"
           >
-            +
+            <Plus size={14} />
           </button>
           <button
             onClick={(e) => {
@@ -100,20 +101,20 @@ function FolderNode({
               setNewName(folder.name);
               setRenaming(true);
             }}
-            className="text-xs px-1.5 py-1 hover:bg-neutral-200 rounded"
+            className="text-xs p-1 hover:bg-neutral-200 rounded"
             title="Renommer"
           >
-            ✏️
+            <Pencil size={14} />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               setConfirmDelete(folder);
             }}
-            className="text-xs px-1.5 py-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
+            className="text-xs p-1 hover:bg-red-100 hover:dark:bg-red-900/30 rounded"
             title="Supprimer"
           >
-            🗑️
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
@@ -184,7 +185,7 @@ export function FolderTree({
                 : "hover:bg-neutral-50 hover:dark:bg-neutral-800"
             }`}
           >
-            📄 Tous les documents
+            <FileText size={14} className="mr-1" /> Tous les documents
           </button>
         </li>
         {rootFolders.map((folder) => (

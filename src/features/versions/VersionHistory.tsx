@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { VersionService } from "@/services";
 import type { Version } from "@/types";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Skeleton } from "@/components/Skeleton";
 
 interface VersionHistoryProps {
   documentId: string;
@@ -33,11 +34,11 @@ export function VersionHistory({ documentId, onRestore }: VersionHistoryProps) {
   };
 
   if (loading) {
-    return <p className="text-sm text-neutral-400">Chargement...</p>;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   if (versions.length === 0) {
-    return <p className="text-sm text-neutral-400">Aucune version sauvegardée.</p>;
+    return <p className="text-sm text-neutral-500 dark:text-neutral-400">Aucune version sauvegardée.</p>;
   }
 
   return (
@@ -49,7 +50,7 @@ export function VersionHistory({ documentId, onRestore }: VersionHistoryProps) {
         >
           <div>
             <span className="font-medium">Version {v.version}</span>
-            <span className="text-neutral-400 ml-2">
+            <span className="text-neutral-500 dark:text-neutral-400 ml-2">
               {new Date(v.createdAt).toLocaleString("fr-FR")}
             </span>
           </div>

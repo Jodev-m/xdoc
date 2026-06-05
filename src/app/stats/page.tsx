@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProjectService, ChecklistService } from "@/services";
 import { db } from "@/db";
+import { MobileNav } from "@/components/MobileNav";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function StatsPage() {
   const router = useRouter();
@@ -51,7 +53,12 @@ export default function StatsPage() {
       <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Statistiques</h1>
 
       {!stats ? (
-        <p className="text-neutral-500">Chargement...</p>
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           <StatCard label="Projets actifs" value={stats.activeProjects} />
@@ -64,6 +71,7 @@ export default function StatsPage() {
           />
         </div>
       )}
+      <MobileNav />
     </div>
   );
 }
@@ -81,7 +89,7 @@ function StatCard({
     <div className="p-5 rounded-xl border dark:border-neutral-700 bg-white dark:bg-neutral-900">
       <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">{label}</p>
       <p className="text-3xl font-bold">{value}</p>
-      {sub && <p className="text-xs text-neutral-400 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{sub}</p>}
     </div>
   );
 }

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { db } from "@/db";
 import type { Version, XDoc } from "@/types";
+import { MobileNav } from "@/components/MobileNav";
+import { Skeleton } from "@/components/Skeleton";
 
 interface VersionWithDoc extends Version {
   docTitle?: string;
@@ -46,9 +48,13 @@ export default function VersionsPage() {
       <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Historique des versions</h1>
 
       {loading ? (
-        <p className="text-neutral-500">Chargement...</p>
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-3/4" />
+        </div>
       ) : versions.length === 0 ? (
-        <p className="text-neutral-400">Aucune version enregistrée.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Aucune version enregistrée.</p>
       ) : (
         <div className="space-y-2">
           {versions.map((v) => (
@@ -58,8 +64,8 @@ export default function VersionsPage() {
             >
               <div>
                 <span className="font-medium">{v.docTitle}</span>
-                <span className="text-neutral-400 ml-2">v{v.version}</span>
-                <p className="text-xs text-neutral-400 mt-0.5">
+                <span className="text-neutral-500 dark:text-neutral-400 ml-2">v{v.version}</span>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                   {new Date(v.createdAt).toLocaleString("fr-FR")}
                 </p>
               </div>
@@ -71,12 +77,13 @@ export default function VersionsPage() {
                   Ouvrir
                 </Link>
               ) : (
-                <span className="text-sm text-neutral-400">Document supprimé</span>
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">Document supprimé</span>
               )}
             </div>
           ))}
         </div>
       )}
+      <MobileNav />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { FavoriteButton } from "@/features/projects";
 import { FavoriteService, DocumentService } from "@/services";
 import { ContextMenu } from "./ContextMenu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { GripVertical, FileText, Pencil, Copy, Trash2 } from "lucide-react";
 
 interface FileListProps {
   documents: XDoc[];
@@ -71,7 +72,7 @@ export function FileList({
     return (
       <div>
         <Header folderName={folderName} onCreateDocument={onCreateDocument} onImport={onImport} />
-        <p className="text-neutral-400">Aucun document.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Aucun document.</p>
       </div>
     );
   }
@@ -111,8 +112,8 @@ export function FileList({
               }}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-xs text-neutral-300 cursor-grab active:cursor-grabbing select-none">⠿</span>
-                <span className="text-lg">📄</span>
+                <GripVertical size={14} className="text-neutral-300 cursor-grab active:cursor-grabbing select-none shrink-0" />
+                <FileText size={18} className="text-neutral-500 shrink-0" />
                 {renamingDoc === doc.id ? (
                   <input
                     type="text"
@@ -144,7 +145,7 @@ export function FileList({
                 )}
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
                   v{doc.version}
                 </span>
                 <FavoriteButton
@@ -165,7 +166,7 @@ export function FileList({
           actions={[
             {
               label: "Renommer",
-              icon: "✏️",
+              icon: <Pencil size={16} />,
               onClick: () => {
                 setRenameValue(contextMenu.doc.title);
                 setRenamingDoc(contextMenu.doc.id);
@@ -173,7 +174,7 @@ export function FileList({
             },
             {
               label: "Dupliquer",
-              icon: "📄",
+              icon: <Copy size={16} />,
               onClick: () => {
                 onDuplicate(contextMenu.doc.id);
                 setContextMenu(null);
@@ -181,7 +182,7 @@ export function FileList({
             },
             {
               label: "Supprimer",
-              icon: "🗑️",
+              icon: <Trash2 size={16} />,
               danger: true,
               onClick: () => {
                 setConfirmDeleteDoc(contextMenu.doc);

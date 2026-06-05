@@ -7,6 +7,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { db } from "@/db";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { MobileNav } from "@/components/MobileNav";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -205,14 +206,16 @@ export default function SettingsPage() {
       <ConfirmDialog
         open={confirmImport}
         title="Importer des données"
-        message="L'import ajoutera les données au contenu existant. Les doublons éventuels (mêmes IDs) seront ignorés. Continuer ?"
+        message="Cela remplacera toutes les données existantes. Cette action est irréversible."
         confirmLabel="Importer"
+        danger
         onConfirm={() => {
           setConfirmImport(false);
           importRef.current?.click();
         }}
         onClose={() => setConfirmImport(false)}
       />
+      <MobileNav />
     </div>
   );
 }

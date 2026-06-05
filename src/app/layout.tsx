@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { InstallBanner } from "@/components/InstallBanner";
+import { ToastProvider } from "@/components/Toast";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
 const geistSans = Geist({
@@ -49,8 +51,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="min-h-full flex flex-col">
+        <InstallBanner />
         <ThemeProvider>
-          <SettingsProvider>{children}</SettingsProvider>
+          <SettingsProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>

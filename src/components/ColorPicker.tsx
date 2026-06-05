@@ -27,7 +27,7 @@ export function ColorPicker({ open, onPick, onClose }: ColorPickerProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 mb-3">Couleur du texte</h2>
-        <div className="grid grid-cols-10 gap-1">
+        <div className="grid grid-cols-10 gap-1.5">
           {COLORS.map((color) => (
             <button
               key={color}
@@ -36,7 +36,7 @@ export function ColorPicker({ open, onPick, onClose }: ColorPickerProps) {
                 onPick(color);
                 onClose();
               }}
-              className="w-6 h-6 rounded border border-neutral-200 dark:border-neutral-700 hover:scale-110 transition-transform"
+              className="w-8 h-8 rounded border border-neutral-200 dark:border-neutral-700 hover:scale-110 transition-transform"
               style={{ backgroundColor: color }}
             />
           ))}

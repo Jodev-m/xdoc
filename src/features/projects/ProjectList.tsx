@@ -6,6 +6,7 @@ import type { Project } from "@/types";
 import { ProjectService } from "@/services";
 import { FavoriteButton } from "./FavoriteButton";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Archive, RotateCcw, Trash2 } from "lucide-react";
 
 interface ProjectListProps {
   projects: Project[];
@@ -29,7 +30,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
   };
 
   if (projects.length === 0) {
-    return <p className="text-neutral-400">Aucun projet pour le moment.</p>;
+    return <p className="text-neutral-500 dark:text-neutral-400">Aucun projet pour le moment.</p>;
   }
 
   return (
@@ -52,7 +53,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                     <span className="text-sm text-neutral-500 dark:text-neutral-400 block truncate">{project.description}</span>
                   )}
                   {(project.startDate || project.endDate) && (
-                    <span className="text-xs text-neutral-400 block">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400 block">
                       {project.startDate && new Date(project.startDate).toLocaleDateString("fr-FR")}
                       {project.startDate && project.endDate && " — "}
                       {project.endDate && new Date(project.endDate).toLocaleDateString("fr-FR")}
@@ -76,7 +77,7 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
                   {new Date(project.updatedAt).toLocaleDateString("fr-FR")}
                 </span>
                 {onArchive && showArchiveBtn && (
@@ -85,10 +86,10 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                       e.preventDefault();
                       onArchive(project.id, true);
                     }}
-                    className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
+                    className="md:opacity-0 md:group-hover:opacity-100 text-xs p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
                     title="Archiver le projet"
                   >
-                    📦
+                    <Archive size={16} />
                   </button>
                 )}
                 {onArchive && !showArchiveBtn && (
@@ -97,10 +98,10 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                       e.preventDefault();
                       onArchive(project.id, false);
                     }}
-                    className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
+                    className="md:opacity-0 md:group-hover:opacity-100 text-xs p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded transition-opacity"
                     title="Restaurer le projet"
                   >
-                    ↩️
+                    <RotateCcw size={16} />
                   </button>
                 )}
                 <button
@@ -108,10 +109,10 @@ export function ProjectList({ projects, progress, onUpdate, onDelete, onArchive,
                     e.preventDefault();
                     setConfirmDeleteId(project.id);
                   }}
-                  className="md:opacity-0 md:group-hover:opacity-100 text-xs px-1.5 py-1 hover:bg-red-100 rounded transition-opacity"
+                  className="md:opacity-0 md:group-hover:opacity-100 text-xs p-1 hover:bg-red-100 rounded transition-opacity"
                   title="Supprimer le projet"
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             </Link>
