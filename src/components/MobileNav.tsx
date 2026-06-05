@@ -11,7 +11,7 @@ function NavItem({ href, label, children }: { href: string; label: string; child
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center gap-1 text-[10px] transition-colors py-1 px-2 min-w-[64px] ${
+      className={`flex flex-col items-center gap-0.5 text-[10px] leading-tight transition-colors py-1 px-1.5 ${
         active
           ? "text-neutral-900 dark:text-neutral-100"
           : "text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
@@ -24,7 +24,7 @@ function NavItem({ href, label, children }: { href: string; label: string; child
       }`}>
         {children}
       </span>
-      <span>{label}</span>
+      <span className="whitespace-nowrap">{label}</span>
     </Link>
   );
 }
