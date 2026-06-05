@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -8,18 +8,39 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { db } from "@/db";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { MobileNav } from "@/components/MobileNav";
+import { useNotifications } from "@/hooks/useNotifications";
+import {
+  Bell,
+  BellOff,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Calendar,
+  FileText,
+  Wifi,
+  Shield,
+  ExternalLink,
+} from "lucide-react";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { settings, updateSettings } = useSettings();
+  const { permission, requestPermission } = useNotifications();
   const [localFontSize, setLocalFontSize] = useState(settings.fontSize);
   const [localAutoSave, setLocalAutoSave] = useState(settings.autoSaveInterval);
   const [localLineHeight, setLocalLineHeight] = useState(settings.lineHeight);
+  const [notifDeadlines, setNotifDeadlines] = useState(false);
+  const [notifTasks, setNotifTasks] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [confirmImport, setConfirmImport] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setNotifDeadlines(localStorage.getItem("notif-deadlines") !== "false");
+    setNotifTasks(localStorage.getItem("notif-tasks") !== "false");
+  }, []);
 
   const handleSave = () => {
     updateSettings({
@@ -27,6 +48,15 @@ export default function SettingsPage() {
       autoSaveInterval: localAutoSave,
       lineHeight: localLineHeight,
     });
+  };
+
+  const toggleDeadlines = (v: boolean) => {
+    setNotifDeadlines(v);
+    localStorage.setItem("notif-deadlines", String(v));
+  };
+  const toggleTasks = (v: boolean) => {
+    setNotifTasks(v);
+    localStorage.setItem("notif-tasks", String(v));
   };
 
   const handleExport = async () => {
@@ -178,21 +208,131 @@ export default function SettingsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">À propos</h2>
-        <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-          xdoc-mobile est une application de documents hors ligne conçue pour la
-          rédaction, l&rsquo;organisation et l&rsquo;export de documents. Elle permet
-          de créer des projets, d&rsquo;organiser des dossiers, d&rsquo;éditer des
-          documents avec un éditeur riche (Tiptap), de suivre l&rsquo;avancement via
-          des checklists, et d&rsquo;exporter aux formats HTML, TXT, PDF et DOCX.
-          Toutes les données sont stockées localement sur l&rsquo;appareil via IndexedDB,
-          offrant une expérience entièrement hors ligne.
-        </p>
+        <h2 className="text-lg font-semibold mb-3">Notifications</h2>
+        <div className="rounded-lg border dark:border-neutral-700 divide-y dark:divide-neutral-700">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Bell size={16} className="text-neutral-500" />
+                Statut
+              </div>
+              <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                permission === "granted" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+                permission === "denied" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                permission === "unavailable" ? "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400" :
+                "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+              }`}>
+                {permission === "granted" ? <CheckCircle2 size={12} /> :
+                 permission === "denied" ? <XCircle size={12} /> :
+                 permission === "unavailable" ? <BellOff size={12} /> : null}
+                {permission === "granted" ? "Activé" :
+                 permission === "denied" ? "Bloqué" :
+                 permission === "unavailable" ? "Non supporté" :
+                 "Non défini"}
+              </span>
+            </div>
+            {permission === "default" && (
+              <button
+                onClick={requestPermission}
+                className="mt-2 px-3 py-1.5 text-xs font-medium bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200"
+              >
+                Activer les notifications
+              </button>
+            )}
+            {permission === "denied" && (
+              <p className="mt-2 text-xs text-neutral-500">
+                Les notifications ont été bloquées. Tu peux les réactiver dans les paramètres du navigateur (icône 🔒 ou ℹ️ dans la barre d&apos;adresse).
+              </p>
+            )}
+            {permission === "unavailable" && (
+              <p className="mt-2 text-xs text-neutral-500">
+                Ce navigateur ne supporte pas les notifications.
+              </p>
+            )}
+          </div>
+
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-start gap-2">
+              <Calendar size={16} className="text-neutral-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium">Rappels d&apos;échéances</p>
+                <p className="text-xs text-neutral-500 mt-0.5">J-7 et J-1 avant la fin d&apos;un projet</p>
+              </div>
+            </div>
+            <button
+              onClick={() => toggleDeadlines(!notifDeadlines)}
+              disabled={permission !== "granted"}
+              className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
+                notifDeadlines && permission === "granted" ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-600"
+              } disabled:opacity-40`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                notifDeadlines && permission === "granted" ? "translate-x-5" : "translate-x-0"
+              }`} />
+            </button>
+          </div>
+
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-start gap-2">
+              <Clock size={16} className="text-neutral-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium">Tâches en attente</p>
+                <p className="text-xs text-neutral-500 mt-0.5">Rappel entre 18h et 22h si des tâches restent à faire</p>
+              </div>
+            </div>
+            <button
+              onClick={() => toggleTasks(!notifTasks)}
+              disabled={permission !== "granted"}
+              className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
+                notifTasks && permission === "granted" ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-600"
+              } disabled:opacity-40`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                notifTasks && permission === "granted" ? "translate-x-5" : "translate-x-0"
+              }`} />
+            </button>
+          </div>
+        </div>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Auteur</h2>
-        <p className="text-neutral-600 dark:text-neutral-400">Mada Joel</p>
+        <h2 className="text-lg font-semibold mb-3">À propos</h2>
+        <div className="rounded-lg border dark:border-neutral-700 p-4 space-y-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold">
+              XD
+            </div>
+            <div>
+              <p className="font-semibold">xdoc-mobile</p>
+              <p className="text-xs text-neutral-500">Version 1.0.0</p>
+            </div>
+          </div>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            Application de rédaction et gestion de documents 100 % hors ligne.
+            Conçue pour les journalistes, rédacteurs et chefs de projet qui ont
+            besoin d&apos;un outil fiable sans connexion internet.
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-1.5 text-neutral-500">
+              <FileText size={14} /> Rédaction enrichie
+            </div>
+            <div className="flex items-center gap-1.5 text-neutral-500">
+              <Wifi size={14} /> Hors ligne
+            </div>
+            <div className="flex items-center gap-1.5 text-neutral-500">
+              <ExternalLink size={14} /> Export PDF/DOCX/MD/TXT/HTML
+            </div>
+            <div className="flex items-center gap-1.5 text-neutral-500">
+              <Shield size={14} /> Données locales (IndexedDB)
+            </div>
+          </div>
+          <div className="pt-3 border-t dark:border-neutral-700">
+            <p className="text-xs text-neutral-500">
+              Développé avec Next.js, Tiptap, Dexie, Serwist, Tailwind CSS
+            </p>
+            <p className="text-xs text-neutral-500 mt-1">&copy; 2026 Mada Joel</p>
+          </div>
+        </div>
       </section>
 
       <input
