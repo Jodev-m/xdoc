@@ -12,7 +12,7 @@ import { ChecklistPanel } from "@/features/checklist";
 import { PromptDialog } from "@/components/PromptDialog";
 import { ImportDialog } from "@/components/ImportDialog";
 import { ProjectGallery } from "@/features/project/ProjectGallery";
-import { Copy, FileText, Download, FileArchive } from "lucide-react";
+import { Copy, FileText, Download, FileArchive, Share2, MessageCircle, Mail } from "lucide-react";
 
 export default function ProjectPage() {
   const toast = useToast();
@@ -32,6 +32,8 @@ export default function ProjectPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -161,6 +163,49 @@ export default function ProjectPage() {
     }
   };
 
+  const handleShareZIP = async () => {
+    if (!project) return;
+    setSharing(true);
+    const allDocs = await DocumentService.getProjectDocuments(project.id);
+    const images = await ProjectImageService.getImages(project.id);
+    const blob = await ExportService.exportProjectZIP(
+      allDocs.map((d) => ({ title: d.title, content: d.content })),
+      images.map((i) => ({ name: i.name, data: i.data })),
+      project.name
+    );
+    if (blob) {
+      const file = new File([blob], `${project.name}.zip`, { type: 'application/zip' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: project.name, files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${project.name}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.showToast("Archive ZIP téléchargée", "success");
+      }
+    }
+    setSharing(false);
+    setShowShareMenu(false);
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!project) return;
+    const text = `Projet "${project.name}" depuis xdoc-mobile${project.description ? ` : ${project.description}` : ''}`;
+    window.open(ExportService.getWhatsAppUrl(text), '_blank');
+    setShowShareMenu(false);
+  };
+
+  const handleShareEmail = () => {
+    if (!project) return;
+    const subject = `Projet : ${project.name}`;
+    const body = `Découvre mon projet "${project.name}" sur xdoc-mobile.\n\n${project.description ?? ''}\n\nExporté depuis xdoc-mobile.`;
+    window.open(ExportService.getMailToUrl(subject, body), '_blank');
+    setShowShareMenu(false);
+  };
+
   const openEditProject = () => {
     if (!project) return;
     setEditName(project.name);
@@ -249,6 +294,45 @@ export default function ProjectPage() {
             <FileArchive size={14} />
             ZIP
           </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
+              title="Partager le projet"
+            >
+              <Share2 size={14} />
+              Partager
+            </button>
+            {showShareMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowShareMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-neutral-900 border dark:border-neutral-700 rounded-lg shadow-lg py-1 min-w-[170px]">
+                  <button
+                    onClick={handleShareZIP}
+                    disabled={sharing}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <FileArchive size={14} className="text-neutral-400" />
+                    {sharing ? "Préparation..." : "Partager le ZIP"}
+                  </button>
+                  <button
+                    onClick={handleShareWhatsApp}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2"
+                  >
+                    <MessageCircle size={14} className="text-green-500" />
+                    WhatsApp
+                  </button>
+                  <button
+                    onClick={handleShareEmail}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2"
+                  >
+                    <Mail size={14} className="text-blue-500" />
+                    Email
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <button
             onClick={handleDuplicateProject}
             className="text-xs p-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"

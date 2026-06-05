@@ -13,6 +13,7 @@ import { useAutosave } from "@/hooks/useAutosave";
 import { useVersionSnapshot } from "@/hooks/useVersionSnapshot";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Skeleton } from "@/components/Skeleton";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function DocumentPage() {
   const toast = useToast();
@@ -220,21 +221,25 @@ export default function DocumentPage() {
               {focusMode ? "⊞" : "⛶"}
             </button>
           </div>
-          <EditorContent
-            key={editorKey}
-            content={doc.content}
-            onChange={handleContentChange}
-          />
+          <ErrorBoundary>
+            <EditorContent
+              key={editorKey}
+              content={doc.content}
+              onChange={handleContentChange}
+            />
+          </ErrorBoundary>
         </div>
         {showHistory && !focusMode && (
           <aside className="w-full md:w-72 shrink-0">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 mb-3">
               Versions
             </h3>
-            <VersionHistory
-              documentId={doc.id}
-              onRestore={handleRestore}
-            />
+            <ErrorBoundary>
+              <VersionHistory
+                documentId={doc.id}
+                onRestore={handleRestore}
+              />
+            </ErrorBoundary>
           </aside>
         )}
       </div>
