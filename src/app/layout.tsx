@@ -4,6 +4,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { InstallBanner } from "@/components/InstallBanner";
 import { ToastProvider } from "@/components/Toast";
+import { UpdatePrompt } from "@/components/UpdatePrompt";
+import { NotificationPermission } from "@/components/NotificationPermission";
+import { NotificationChecker } from "@/components/NotificationChecker";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
 const geistSans = Geist({
@@ -52,6 +55,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <InstallBanner />
+        <UpdatePrompt />
+        <NotificationPermission />
+        <NotificationChecker />
         <ThemeProvider>
           <SettingsProvider>
             <ToastProvider>{children}</ToastProvider>

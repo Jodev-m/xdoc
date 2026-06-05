@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ProjectService, FolderService, DocumentService } from "@/services";
+import { ProjectService, FolderService, DocumentService, ExportService, ProjectImageService } from "@/services";
 import type { Project, Folder, XDoc } from "@/types";
 import { FolderTree, FileList } from "@/features/explorer";
 import { useToast } from "@/components/Toast";
@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/Skeleton";
 import { ChecklistPanel } from "@/features/checklist";
 import { PromptDialog } from "@/components/PromptDialog";
 import { ImportDialog } from "@/components/ImportDialog";
+import { ProjectGallery } from "@/features/project/ProjectGallery";
+import { Copy, FileText, Download, FileArchive } from "lucide-react";
 
 export default function ProjectPage() {
   const toast = useToast();
@@ -106,6 +108,59 @@ export default function ProjectPage() {
     setFolders((prev) => [...prev, folder]);
   };
 
+  const handleCreateBrief = async () => {
+    if (!project) return;
+    const doc = await DocumentService.createBriefDocument(project.id, project.name);
+    setDocuments((prev) => [...prev, doc]);
+    toast.showToast("Brief client créé", "success");
+  };
+
+  const handleExportPDF = async () => {
+    if (!project) return;
+    const allDocs = await DocumentService.getProjectDocuments(project.id);
+    if (allDocs.length === 0) {
+      toast.showToast("Aucun document à exporter", "error");
+      return;
+    }
+    const blob = await ExportService.exportProjectPDF(
+      allDocs.map((d) => ({ title: d.title, content: d.content })),
+      project.name
+    );
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${project.name}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.showToast("PDF exporté", "success");
+    }
+  };
+
+  const handleExportZIP = async () => {
+    if (!project) return;
+    const allDocs = await DocumentService.getProjectDocuments(project.id);
+    const images = await ProjectImageService.getImages(project.id);
+    if (allDocs.length === 0 && images.length === 0) {
+      toast.showToast("Aucun contenu à exporter", "error");
+      return;
+    }
+    const blob = await ExportService.exportProjectZIP(
+      allDocs.map((d) => ({ title: d.title, content: d.content })),
+      images.map((i) => ({ name: i.name, data: i.data })),
+      project.name
+    );
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${project.name}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.showToast("Archive ZIP exportée", "success");
+    }
+  };
+
   const openEditProject = () => {
     if (!project) return;
     setEditName(project.name);
@@ -171,11 +226,35 @@ export default function ProjectPage() {
         )}
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <button
+            onClick={handleCreateBrief}
+            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
+            title="Nouveau brief client"
+          >
+            <FileText size={14} />
+            Brief
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
+            title="Exporter tous les documents en PDF"
+          >
+            <Download size={14} />
+            PDF
+          </button>
+          <button
+            onClick={handleExportZIP}
+            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800 flex items-center gap-1"
+            title="Exporter le projet en ZIP"
+          >
+            <FileArchive size={14} />
+            ZIP
+          </button>
+          <button
             onClick={handleDuplicateProject}
-            className="text-xs px-2 py-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
+            className="text-xs p-1.5 rounded border hover:bg-neutral-50 dark:border-neutral-700 hover:dark:bg-neutral-800"
             title="Dupliquer le projet"
           >
-            📋
+            <Copy size={14} />
           </button>
           <button
             onClick={openEditProject}
@@ -224,7 +303,8 @@ export default function ProjectPage() {
         </main>
       </div>
 
-      <div className="mt-8 border-t dark:border-neutral-700 pt-6">
+      <div className="mt-8 border-t dark:border-neutral-700 pt-6 space-y-6">
+        <ProjectGallery projectId={project.id} />
         <ChecklistPanel projectId={project.id} />
       </div>
 

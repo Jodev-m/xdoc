@@ -91,4 +91,36 @@ export const DocumentService = {
       : await db.documents.where('projectId').equals(projectId).toArray();
     return docs.sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
   },
+
+  async getProjectDocuments(projectId: string): Promise<XDoc[]> {
+    return db.documents.where('projectId').equals(projectId).toArray();
+  },
+
+  async createBriefDocument(projectId: string, projectName: string): Promise<XDoc> {
+    const templateContent = {
+      type: 'doc',
+      content: [
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: `Brief Client — ${projectName}` }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Objectif du projet' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: "Décrivez l'objectif principal du projet. Quel problème résout-il ? Quelle est la vision ?" }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Contexte / Problématique' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Expliquez le contexte actuel, les frustrations ou besoins identifiés.' }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Cible' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Qui est le public visé ? (âge, profil, comportements, etc.)' }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Contraintes techniques et budgétaires' }] },
+        { type: 'bulletList', content: [{ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Technologies imposées ou souhaitées' }] }] }, { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Budget prévisionnel' }] }] }, { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Contraintes de performance / accessibilité' }] }] }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Références et inspirations' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Listez les sites, apps, maquettes ou moodboards qui inspirent ce projet.' }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Délais' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Quelles sont les dates clés ? (livraison, jalons, recettes)' }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Budget' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Budget total estimé et répartition par phase.' }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Livrables attendus' }] },
+        { type: 'bulletList', content: [{ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Maquettes / wireframes' }] }] }, { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Développement front-end / back-end' }] }] }, { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Tests et recette' }] }] }, { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Documentation et formation' }] }] }] },
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Notes complémentaires' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Ajoutez ici toute information supplémentaire utile à la compréhension du projet.' }] },
+      ],
+    };
+    return this.createDocument(projectId, `Brief — ${projectName}`, undefined, templateContent);
+  },
 };

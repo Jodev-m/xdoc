@@ -7,3 +7,4 @@ export { ExportService } from './ExportService';
 export { TrashService } from './TrashService';
 export { ChecklistService } from './ChecklistService';
 export { FavoriteService } from './FavoriteService';
+export { ProjectImageService } from './ProjectImageService';

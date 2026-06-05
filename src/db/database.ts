@@ -9,6 +9,14 @@ export interface ImageEntry {
   createdAt: number;
 }
 
+export interface ProjectImageEntry {
+  id: string;
+  projectId: string;
+  data: string;
+  name: string;
+  createdAt: number;
+}
+
 export interface FavoriteEntry {
   id: string;
   documentId: string;
@@ -34,6 +42,7 @@ export class XDocDatabase extends Dexie {
   trash!: Table<TrashEntry, string>;
   checklists!: Table<Checklist, string>;
   checklistTasks!: Table<ChecklistTask, string>;
+  projectImages!: Table<ProjectImageEntry, string>;
 
   constructor() {
     super('xdoc-database');
@@ -47,6 +56,18 @@ export class XDocDatabase extends Dexie {
       trash: 'id, documentId, projectId, deletedAt',
       checklists: 'id, projectId',
       checklistTasks: 'id, checklistId',
+    });
+    this.version(4).stores({
+      projects: 'id, name, favorite, updatedAt',
+      folders: 'id, projectId, parentId',
+      documents: 'id, projectId, folderId, title, updatedAt',
+      versions: 'id, documentId, version',
+      images: 'id, documentId',
+      favorites: 'id, documentId',
+      trash: 'id, documentId, projectId, deletedAt',
+      checklists: 'id, projectId',
+      checklistTasks: 'id, checklistId',
+      projectImages: 'id, projectId',
     });
   }
 }
